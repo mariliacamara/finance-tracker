@@ -15,7 +15,7 @@ const app = await NestFactory.create(AppModule, {
 })
 
 const config = new DocumentBuilder()
-  .setTitle('Boilerplate Nest.js SWC')
+  .setTitle('Finance Tracker')
   .setDescription('No description')
   .setVersion('0.0.1')
   .setOpenAPIVersion('3.1.1')

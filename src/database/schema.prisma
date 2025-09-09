@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id    String  @id @default(uuid())
+  email String  @unique
+  name  String?
+
+  incomes     Income[]
+  expenses    Expense[]
+  investments Investment[]
+  budgets     Budget[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Income {
+  id           String         @id @default(uuid())
+  description  String?
+  totalAmount  Decimal
+  type         IncomeType
+  category     IncomeCategory
+  installments Int            @default(1)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  installmentsList IncomeInstallment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model IncomeInstallment {
+  id       String @id @default(uuid())
+  incomeId String
+  income   Income @relation(fields: [incomeId], references: [id])
+
+  installmentNumber Int
+  amount            Decimal
+  dueDate           DateTime
+  receivedAt        DateTime?
+  status            IncomeStatus @default(UNPAID)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Expense {
+  id            String          @id @default(uuid())
+  description   String?
+  totalAmount   Decimal
+  type          ExpenseType
+  category      ExpenseCategory
+  paymentMethod PaymentMethod
+  installments  Int             @default(1)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  installmentsList ExpenseInstallment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ExpenseInstallment {
+  id        String  @id @default(uuid())
+  expenseId String
+  expense   Expense @relation(fields: [expenseId], references: [id])
+
+  installmentNumber Int
+  amount            Decimal
+  dueDate           DateTime
+  paidAt            DateTime?
+  status            ExpenseStatus @default(SCHEDULED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Investment {
+  id           String         @id @default(uuid())
+  name         String
+  type         InvestmentType
+  broker       String?
+  amount       Decimal
+  purchaseAt   DateTime
+  currentValue Decimal?
+  notes        String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Budget {
+  id       String          @id @default(uuid())
+  month    Int
+  year     Int
+  category ExpenseCategory
+  limit    Decimal
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum IncomeType {
+  FIXED
+  VARIABLE
+}
+
+enum IncomeCategory {
+  SALARY
+  FREELANCE
+  REFUND
+  OTHER
+}
+
+enum IncomeStatus {
+  PAID
+  UNPAID
+}
+
+enum ExpenseType {
+  FIXED
+  VARIABLE
+}
+
+enum ExpenseCategory {
+  HOUSE
+  APARTMENT
+  FINANCING
+  HEALTH
+  EDUCATION
+  TRANSPORT
+  OTHER
+}
+
+enum PaymentMethod {
+  PIX
+  AUTO_DEBIT
+  CREDIT_CARD
+}
+
+enum ExpenseStatus {
+  SCHEDULED
+  PAID
+  UNPAID
+}
+
+enum InvestmentType {
+  STOCK
+  CRYPTO
+  FUND
+  FIXED_INCOME
+  REAL_ESTATE
+  OTHER
+}
